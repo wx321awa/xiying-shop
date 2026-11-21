@@ -2,6 +2,7 @@ package com.xiying.shop.util;
 
 import com.xiying.shop.XiYingShopPlugin;
 import com.xiying.shop.model.Currency;
+import java.util.UUID;
 import net.milkbowl.vault.economy.Economy;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
@@ -10,90 +11,96 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import java.util.UUID;
-
 public class EconomyHook {
-    private final XiYingShopPlugin plugin;
-    private Economy economy;
-    private PlayerPointsAPI points;
+   private final XiYingShopPlugin plugin;
+   private Economy economy;
+   private PlayerPointsAPI points;
 
-    public EconomyHook(XiYingShopPlugin plugin) {
-        this.plugin = plugin;
-    }
+   public EconomyHook(XiYingShopPlugin var1) {
+      this.plugin = var1;
+   }
 
-    public void setup() {
-        economy = null;
-        points = null;
-        try {
-            if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-                RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
-                if (rsp != null) economy = rsp.getProvider();
-            }
-        } catch (Throwable t) {
-            plugin.getLogger().warning("Vault 经济挂钩失败：" + t.getMessage());
-        }
-        try {
-            if (Bukkit.getPluginManager().isPluginEnabled("PlayerPoints")) {
-                PlayerPoints pp = PlayerPoints.getInstance();
-                if (pp != null) points = pp.getAPI();
-            }
-        } catch (Throwable t) {
-            plugin.getLogger().warning("PlayerPoints 挂钩失败：" + t.getMessage());
-        }
-        plugin.getLogger().info("经济挂钩：Vault=" + (economy != null ? economy.getName() : "无")
-                + "，PlayerPoints=" + (points != null ? "已连接" : "无"));
-    }
+   public void setup() {
+      this.economy = null;
+      this.points = null;
 
-    public boolean moneyReady() {
-        return economy != null;
-    }
+      try {
+         RegisteredServiceProvider var1;
+         if (Bukkit.getPluginManager().isPluginEnabled("Vault") && (var1 = Bukkit.getServicesManager().getRegistration(Economy.class)) != null) {
+            this.economy = (Economy)var1.getProvider();
+         }
+      } catch (Throwable var3) {
+         this.plugin.getLogger().warning("Vault 经济挂钩失败：" + var3.getMessage());
+      }
 
-    public boolean pointsReady() {
-        return points != null;
-    }
+      try {
+         PlayerPoints var4;
+         if (Bukkit.getPluginManager().isPluginEnabled("PlayerPoints") && (var4 = PlayerPoints.getInstance()) != null) {
+            this.points = var4.getAPI();
+         }
+      } catch (Throwable var2) {
+         this.plugin.getLogger().warning("PlayerPoints 挂钩失败：" + var2.getMessage());
+      }
 
-    public double money(OfflinePlayer player) {
-        return economy == null ? 0 : economy.getBalance(player);
-    }
+      this.plugin
+         .getLogger()
+         .info("经济挂钩：Vault=" + (this.economy != null ? this.economy.getName() : "无") + "，PlayerPoints=" + (this.points != null ? "已连接" : "无"));
+   }
 
-    public int points(UUID uuid) {
-        return points == null ? 0 : Math.max(0, points.look(uuid));
-    }
+   public boolean moneyReady() {
+      return this.economy != null;
+   }
 
-    public boolean take(Player player, Currency currency, double amount) {
-        if (currency == Currency.POINTS) {
-            if (points == null) return false;
-            int cost = (int) Math.ceil(amount);
-            if (cost <= 0) return true;
-            return points.take(player.getUniqueId(), cost);
-        }
-        if (economy == null) return false;
-        if (!economy.has(player, amount)) return false;
-        return economy.withdrawPlayer(player, amount).transactionSuccess();
-    }
+   public boolean pointsReady() {
+      return this.points != null;
+   }
 
-    public boolean give(UUID uuid, String name, Currency currency, double amount) {
-        if (currency == Currency.POINTS) {
-            if (points == null) return false;
-            int value = (int) Math.floor(amount);
-            return value <= 0 || points.give(uuid, value);
-        }
-        if (economy == null) return false;
-        OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
-        return economy.depositPlayer(off, amount).transactionSuccess();
-    }
+   public double money(OfflinePlayer var1) {
+      return this.economy == null ? 0.0 : this.economy.getBalance(var1);
+   }
 
-    public boolean has(Player player, Currency currency, double amount) {
-        if (currency == Currency.POINTS) {
-            return points != null && points.look(player.getUniqueId()) >= (int) Math.ceil(amount);
-        }
-        return economy != null && economy.has(player, amount);
-    }
+   public int points(UUID var1) {
+      return this.points == null ? 0 : Math.max(0, this.points.look(var1));
+   }
 
-    public String format(Currency currency, double amount) {
-        if (currency == Currency.POINTS) {
-            return ((int) Math.ceil(amount)) + " 曦荧币";
-        }
-        return Msg.money(amount) + " 金币";
-    }
+   public boolean take(Player var1, Currency var2, double var3) {
+      if (var2 == Currency.POINTS) {
+         if (this.points == null) {
+            return false;
+         } else {
+            int var5 = (int)Math.ceil(var3);
+            return var5 <= 0 ? true : this.points.take(var1.getUniqueId(), var5);
+         }
+      } else if (this.economy == null) {
+         return false;
+      } else {
+         return !this.economy.has(var1, var3) ? false : this.economy.withdrawPlayer(var1, var3).transactionSuccess();
+      }
+   }
+
+   public boolean give(UUID var1, String var2, Currency var3, double var4) {
+      if (var3 == Currency.POINTS) {
+         if (this.points == null) {
+            return false;
+         } else {
+            int var7 = (int)Math.floor(var4);
+            return var7 <= 0 || this.points.give(var1, var7);
+         }
+      } else if (this.economy == null) {
+         return false;
+      } else {
+         OfflinePlayer var6 = Bukkit.getOfflinePlayer(var1);
+         return this.economy.depositPlayer(var6, var4).transactionSuccess();
+      }
+   }
+
+   public boolean has(Player var1, Currency var2, double var3) {
+      return var2 == Currency.POINTS
+         ? this.points != null && this.points.look(var1.getUniqueId()) >= (int)Math.ceil(var3)
+         : this.economy != null && this.economy.has(var1, var3);
+   }
+
+   public String format(Currency var1, double var2) {
+      return var1 == Currency.POINTS ? (int)Math.ceil(var2) + " 曦荧币" : Msg.money(var2) + " 金币";
+   }
 }

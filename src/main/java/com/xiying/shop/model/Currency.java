@@ -1,21 +1,24 @@
 package com.xiying.shop.model;
 
 public enum Currency {
-    MONEY("金币"),
-    POINTS("曦荧币");
+   MONEY("金币"),
+   POINTS("曦荧币");
 
-    private final String label;
+   private final String label;
 
-    Currency(String label) {
-        this.label = label;
-    }
+   private Currency(String nullxx) {
+      this.label = nullxx;
+   }
 
-    public String label() {
-        return label;
-    }
+   public String label() {
+      return this.label;
+   }
 
-    public static Currency parse(String raw) {
-        if (raw == null) return MONEY;
-        return raw.equalsIgnoreCase("POINTS") ? POINTS : MONEY;
-    }
+   public static Currency parse(String var0) {
+      if (var0 == null) {
+         return MONEY;
+      } else {
+         return var0.equalsIgnoreCase("POINTS") ? POINTS : MONEY;
+      }
+   }
 }

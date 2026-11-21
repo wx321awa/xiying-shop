@@ -15,89 +15,92 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class XiYingShopPlugin extends JavaPlugin {
-    private PluginConfig pluginConfig;
-    private ShopStore store;
-    private EconomyHook econ;
-    private ShopService service;
-    private GuiManager gui;
-    private ChatInput chatInput;
-    private BedrockForms bedrockForms;
+   private PluginConfig pluginConfig;
+   private ShopStore store;
+   private EconomyHook econ;
+   private ShopService service;
+   private GuiManager gui;
+   private ChatInput chatInput;
+   private BedrockForms bedrockForms;
 
-    @Override
-    public void onEnable() {
-        saveDefaultConfig();
-        pluginConfig = PluginConfig.load(this);
-        ItemUtil.load(this);
-        store = new ShopStore(this);
-        store.load();
-        econ = new EconomyHook(this);
-        econ.setup();
-        buildComponents();
+   public void onEnable() {
+      this.saveDefaultConfig();
+      this.pluginConfig = PluginConfig.load(this);
+      ItemUtil.load(this);
+      this.store = new ShopStore(this);
+      this.store.load();
+      this.econ = new EconomyHook(this);
+      this.econ.setup();
+      this.buildComponents();
+      ShopCommand var1 = new ShopCommand(this);
+      if (this.getCommand("pshop") != null) {
+         this.getCommand("pshop").setExecutor(var1);
+         this.getCommand("pshop").setTabCompleter(var1);
+      }
 
-        ShopCommand command = new ShopCommand(this);
-        if (getCommand("pshop") != null) {
-            getCommand("pshop").setExecutor(command);
-            getCommand("pshop").setTabCompleter(command);
-        }
-        Bukkit.getPluginManager().registerEvents(new GuiListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
-
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            if (!econ.moneyReady()) {
-                econ.setup();
-                if (!econ.moneyReady()) {
-                    getLogger().warning("Vault 经济仍未就绪，金币相关功能会提示不可用");
-                }
+      Bukkit.getPluginManager().registerEvents(new GuiListener(this), this);
+      Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
+      Bukkit.getScheduler().runTaskLater(this, () -> {
+         if (!this.econ.moneyReady()) {
+            this.econ.setup();
+            if (!this.econ.moneyReady()) {
+               this.getLogger().warning("Vault 经济仍未就绪，金币相关功能会提示不可用");
             }
-        }, 60L);
+         }
+      }, 60L);
+      this.getLogger().info("曦荧玩家商店已启用（Java GUI + 基岩表单）");
+   }
 
-        getLogger().info("曦荧玩家商店已启用（Java GUI + 基岩表单）");
-    }
+   private void buildComponents() {
+      this.service = new ShopService(this, this.store, this.econ, this.pluginConfig);
+      this.gui = new GuiManager(this, this.service, this.store, this.econ, this.pluginConfig);
+      if (this.chatInput == null) {
+         this.chatInput = new ChatInput(this, this.service, this.gui);
+      } else {
+         this.chatInput.rebind(this.service, this.gui);
+      }
 
-    private void buildComponents() {
-        service = new ShopService(this, store, econ, pluginConfig);
-        gui = new GuiManager(this, service, store, econ, pluginConfig);
-        chatInput = new ChatInput(this, service, gui);
-        bedrockForms = new BedrockForms(this, service, store, econ, pluginConfig);
-    }
+      this.bedrockForms = new BedrockForms(this, this.service, this.store, this.econ, this.pluginConfig);
+   }
 
-    public void reloadAll() {
-        pluginConfig = PluginConfig.load(this);
-        ItemUtil.load(this);
-        econ.setup();
-        buildComponents();
-    }
+   public void reloadAll() {
+      this.pluginConfig = PluginConfig.load(this);
+      ItemUtil.load(this);
+      this.econ.setup();
+      this.buildComponents();
+   }
 
-    @Override
-    public void onDisable() {
-        if (store != null) store.saveNow();
-    }
+   public void onDisable() {
+      if (this.store != null) {
+         this.store.shutdown();
+      }
+   }
 
-    public PluginConfig getPluginConfig() {
-        return pluginConfig;
-    }
+   public PluginConfig getPluginConfig() {
+      return this.pluginConfig;
+   }
 
-    public ShopStore getStore() {
-        return store;
-    }
+   public ShopStore getStore() {
+      return this.store;
+   }
 
-    public EconomyHook getEcon() {
-        return econ;
-    }
+   public EconomyHook getEcon() {
+      return this.econ;
+   }
 
-    public ShopService getService() {
-        return service;
-    }
+   public ShopService getService() {
+      return this.service;
+   }
 
-    public GuiManager getGui() {
-        return gui;
-    }
+   public GuiManager getGui() {
+      return this.gui;
+   }
 
-    public ChatInput getChatInput() {
-        return chatInput;
-    }
+   public ChatInput getChatInput() {
+      return this.chatInput;
+   }
 
-    public BedrockForms getBedrockForms() {
-        return bedrockForms;
-    }
+   public BedrockForms getBedrockForms() {
+      return this.bedrockForms;
+   }
 }
