@@ -1,0 +1,25 @@
+prefix: "§8[§b曦荧商店§8] §f"
+create-cost: 50.0
+tax-money: 0.0
+tax-points: 0.0
+max-listings: 27
+max-amount-per-listing: 2304
+min-unit-price: 1.0
+money-enabled: true
+points-enabled: true
+browse-page-size: 45
+bedrock-page-size: 9
+shop-name-min: 2
+shop-name-max: 12
+blacklist:
+  - BEDROCK
+  - BARRIER
+  - COMMAND_BLOCK
+  - CHAIN_COMMAND_BLOCK
+  - REPEATING_COMMAND_BLOCK
+  - STRUCTURE_BLOCK
+  - STRUCTURE_VOID
+  - JIGSAW
+  - LIGHT
+  - DEBUG_STICK
+  - COMMAND_BLOCK_MINECART
