@@ -2,7 +2,7 @@ name: XiYingShop
 version: 1.0.0
 main: com.xiying.shop.XiYingShopPlugin
 api-version: '1.21'
-authors: [XiYing]
+authors: ["xxhh."]
 description: 曦荧玩家商店（Java 箱子界面 + 基岩 Floodgate 表单）
 depend: [Vault]
 softdepend: [PlayerPoints, floodgate, Geyser-Spigot]
